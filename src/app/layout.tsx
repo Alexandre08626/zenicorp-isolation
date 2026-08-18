@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import Link from 'next/link';
 import './globals.css';
@@ -7,15 +7,15 @@ const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-int
 const playfair = Playfair_Display({ subsets: ['latin'], display: 'swap', variable: '--font-playfair' });
 
 export const metadata: Metadata = {
-  title: 'ZeniCorp Ã‰poxy | RevÃªtements de sol en Ã©poxy - Garages & Industriels',
-  description: 'RevÃªtements de sol en Ã©poxy professionnels. Garages rÃ©sidentiels, commerciaux et industriels. Garantie, installation rapide, fini haut de gamme. Soumission gratuite 24h.',
-  keywords: ['Ã©poxy', 'revÃªtement de sol', 'garage', 'plancher Ã©poxy', 'sol industriel', 'ZeniCorp', 'QuÃ©bec'],
+  title: 'ZeniCorp Isolation | Isolation grenier, murs et performance énergétique',
+  description: 'Isolation professionnelle. Grenier, murs, performance énergétique. Subventions Rénoclimat. Soumission gratuite 24h.',
+  keywords: ['isolation', 'grenier', 'murs', 'Rénoclimat', 'performance énergétique', 'ZeniCorp', 'Québec'],
   openGraph: {
     type: 'website',
     locale: 'fr_CA',
-    siteName: 'ZeniCorp Ã‰poxy',
-    title: 'ZeniCorp Ã‰poxy | RevÃªtements de sol professionnels',
-    description: 'Grenier, murs, planchers. Subventions incluses. Soumission gratuite.',
+    siteName: 'ZeniCorp Isolation',
+    title: 'ZeniCorp Isolation | Grenier, murs et performance énergétique',
+    description: 'Grenier, murs, performance énergétique. Subventions Rénoclimat. Garantie incluse.',
   },
 };
 
@@ -29,16 +29,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="container-zenicorp flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-9 h-9 bg-zenicorp-gold flex items-center justify-center">
-                <span className="font-heading font-bold text-zenicorp-black text-xl">Z</span>
+                <span className="font-heading font-bold text-white text-xl">Z</span>
               </div>
               <div className="leading-tight">
                 <span className="font-heading font-bold text-lg tracking-wide">ZENICORP</span>
-                <span className="block text-[10px] uppercase tracking-[0.25em] text-zenicorp-gold">Ã‰poxy</span>
+                <span className="block text-[10px] uppercase tracking-[0.25em] text-zenicorp-gold">Isolation</span>
               </div>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-sm">
               <Link href="/#services" className="hover:text-zenicorp-gold transition-colors">Services</Link>
-              <Link href="/#realisations" className="hover:text-zenicorp-gold transition-colors">RÃ©alisations</Link>
+              <Link href="/#realisations" className="hover:text-zenicorp-gold transition-colors">Réalisations</Link>
               <Link href="/#garantie" className="hover:text-zenicorp-gold transition-colors">Garantie</Link>
               <Link href="/#faq" className="hover:text-zenicorp-gold transition-colors">FAQ</Link>
             </nav>
@@ -51,18 +51,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 bg-zenicorp-gold flex items-center justify-center">
-                  <span className="font-heading font-bold text-zenicorp-black text-lg">Z</span>
+                  <span className="font-heading font-bold text-white text-lg">Z</span>
                 </div>
                 <span className="font-heading font-bold text-lg">ZENICORP</span>
               </div>
-              <p className="text-sm text-zenicorp-silver">Division Ã‰poxy. Une division de ZeniCorp Groupe Construction.</p>
+              <p className="text-sm text-zenicorp-silver">Division Isolation. Une division de ZeniCorp Groupe Construction.</p>
             </div>
             <div>
               <h3 className="font-semibold mb-4 text-zenicorp-gold">Services</h3>
               <ul className="space-y-2 text-sm text-zenicorp-silver">
-                <li><Link href="/#services" className="hover:text-white">Garage rÃ©sidentiel</Link></li>
-                <li><Link href="/#services" className="hover:text-white">Commercial</Link></li>
-                <li><Link href="/#services" className="hover:text-white">Industriel</Link></li>
+                <li><Link href="/#services" className="hover:text-white">Isolation grenier</Link></li>
+                <li><Link href="/#services" className="hover:text-white">Isolation des murs</Link></li>
+                <li><Link href="/#services" className="hover:text-white">Performance énergétique</Link></li>
               </ul>
             </div>
             <div>
@@ -79,13 +79,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <ul className="space-y-2 text-sm text-zenicorp-silver">
                 <li>info@zenicorp.ca</li>
                 <li>1-800-ZENICORP</li>
-                <li>QuÃ©bec, Canada</li>
+                <li>Québec, Canada</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-zenicorp-mediumGray">
             <div className="container-zenicorp py-4 text-xs text-zenicorp-silver">
-              Â© {new Date().getFullYear()} ZeniCorp Groupe Construction. Tous droits rÃ©servÃ©s.
+              © {new Date().getFullYear()} ZeniCorp Groupe Construction. Tous droits réservés.
             </div>
           </div>
         </footer>
