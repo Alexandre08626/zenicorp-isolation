@@ -14,38 +14,47 @@ import {
   Wind,
 } from 'lucide-react';
 
+const px = (id: number, w = 800) =>
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
+
+const HERO_IMG = px(6124239, 1920);
+
 const services = [
   {
     icon: Layers,
     title: 'Isolation grenier',
     desc: 'Ouate de cellulose soufflée ou panneaux rigides. Élimine les ponts thermiques et réduit vos factures.',
     features: ['Ouate de cellulose certifiée', 'Épaisseur R-60 recommandée', 'Aérateurs de soffite', 'Scellement des fuites d\'air'],
+    img: px(38749876),
   },
   {
     icon: Home,
     title: 'Isolation des murs',
     desc: 'Isolation des murs existants et neufs. Confort accru et réduction du bruit extérieur.',
     features: ['Ouate soufflée ou mousse', 'Murs existants sans démolition', 'Réduction des courants d\'air', 'Amélioration du confort'],
+    img: px(38749886),
   },
   {
     icon: Thermometer,
     title: 'Performance énergétique',
     desc: 'Analyse complète de votre isolation actuelle et recommandations chiffrées sur les économies potentielles.',
     features: ['Blower door test', 'Caméra thermique', 'Rapport d\'économie détaillé', 'Plan d\'action priorisé'],
+    img: px(31763539),
   },
   {
     icon: Banknote,
     title: 'Subventions & aides',
     desc: 'Nous gérons vos demandes de subventions Rénoclimat, Hydro-Québec et LogisVert. Jusqu\'à 5 000 $ d\'aide.',
     features: ['Éligibilité vérifiée avant travaux', 'Dossier complet géré', 'Inspecteur certifié Rénoclimat', 'Aucun coût caché'],
+    img: px(38749883),
   },
 ];
 
 const realisations = [
-  { title: 'Grenier R-60 - Québec', desc: 'Cellulose soufflée + aérateurs', value: '4 200 $' },
-  { title: 'Murs existants - Lévis', desc: 'Ouate soufflée, 6 murs', value: '6 800 $' },
-  { title: 'Projet subventionné - Montréal', desc: 'Grenier + murs, 4 000$ de subvention', value: '11 500 $' },
-  { title: 'Manoir centenaire - Trois-Rivières', desc: 'Isolation complète + fenêtres', value: '24 000 $' },
+  { title: 'Grenier R-60 - Québec', desc: 'Cellulose soufflée + aérateurs', value: '4 200 $', img: px(38749891, 600) },
+  { title: 'Murs existants - Lévis', desc: 'Ouate soufflée, 6 murs', value: '6 800 $', img: px(18335689, 600) },
+  { title: 'Projet subventionné - Montréal', desc: 'Grenier + murs, 4 000$ de subvention', value: '11 500 $', img: px(6401176, 600) },
+  { title: 'Manoir centenaire - Trois-Rivières', desc: 'Isolation complète + fenêtres', value: '24 000 $', img: px(15609962, 600) },
 ];
 
 const faqs = [
@@ -80,7 +89,8 @@ export default function IsolationPage() {
 
       {/* HERO */}
       <section className="relative bg-zenicorp-black text-white">
-        <div className="absolute inset-0 bg-gradient-to-br from-zenicorp-black via-zenicorp-darkGray to-zenicorp-black"></div>
+        <img src={HERO_IMG} alt="Ouvrier installant de la laine minérale dans un grenier" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-zenicorp-black via-zenicorp-black/80 to-zenicorp-black/30"></div>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #166534 0px, #166534 1px, transparent 1px, transparent 60px)' }}></div>
         <div className="container-zenicorp relative py-20 lg:py-28">
           <div className="max-w-3xl animate-slide-up">
@@ -161,19 +171,27 @@ export default function IsolationPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {services.map((service) => (
-              <div key={service.title} className="card p-6">
-                <div className="w-12 h-12 bg-zenicorp-black flex items-center justify-center mb-4">
-                  <service.icon className="w-6 h-6 text-zenicorp-gold" />
+              <div key={service.title} className="card overflow-hidden p-0 group">
+                <div className="relative h-44 overflow-hidden">
+                  <img src={service.img} alt={service.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-3 left-4 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-zenicorp-gold flex items-center justify-center">
+                      <service.icon className="w-5 h-5 text-zenicorp-black" />
+                    </div>
+                    <h3 className="text-white font-semibold drop-shadow">{service.title}</h3>
+                  </div>
                 </div>
-                <h3 className="heading-3 mb-3">{service.title}</h3>
-                <p className="body-base text-sm mb-4">{service.desc}</p>
-                <ul className="space-y-2">
-                  {service.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-zenicorp-mediumGray">
-                      <CheckCircle2 className="w-4 h-4 text-zenicorp-gold" /> {f}
-                    </li>
-                  ))}
-                </ul>
+                <div className="p-6">
+                  <p className="body-base text-sm mb-4">{service.desc}</p>
+                  <ul className="space-y-2">
+                    {service.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-sm text-zenicorp-mediumGray">
+                        <CheckCircle2 className="w-4 h-4 text-zenicorp-gold" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             ))}
           </div>
@@ -189,13 +207,16 @@ export default function IsolationPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {realisations.map((r) => (
-              <div key={r.title} className="card p-6">
-                <div className="h-32 bg-gradient-to-br from-zenicorp-darkGray to-zenicorp-black flex items-center justify-center mb-4">
-                  <Paintbrush className="w-10 h-10 text-zenicorp-gold" />
+              <div key={r.title} className="card overflow-hidden p-0 group">
+                <div className="relative h-40 overflow-hidden">
+                  <img src={r.img} alt={r.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <span className="absolute top-3 right-3 bg-zenicorp-gold text-zenicorp-black text-xs font-bold px-2 py-1">{r.value}</span>
                 </div>
-                <h3 className="font-semibold text-sm">{r.title}</h3>
-                <p className="text-xs text-zenicorp-mediumGray mt-1">{r.desc}</p>
-                <p className="text-zenicorp-gold font-bold text-sm mt-2">{r.value}</p>
+                <div className="p-5">
+                  <h3 className="font-semibold text-sm">{r.title}</h3>
+                  <p className="text-xs text-zenicorp-mediumGray mt-1">{r.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -215,7 +236,7 @@ export default function IsolationPage() {
               { n: '02', t: 'Travaux', d: 'Installation rapide et propre. Grenier en une journée, murs en 2-3 jours.' },
               { n: '03', t: 'Subventions', d: 'Nous gérons l\'inspection et le dossier complet jusqu\'au versement de votre aide.' },
             ].map((s) => (
-              <div key={s.n} className="border border-zenicorp-mediumGray p-6">
+              <div key={s.n} className="border border-zenicorp-mediumGray p-6 hover:border-zenicorp-gold/60 transition-colors">
                 <span className="font-heading text-5xl text-zenicorp-gold font-bold">{s.n}</span>
                 <h3 className="text-xl font-semibold mt-4 mb-2">{s.t}</h3>
                 <p className="text-sm text-zenicorp-silver">{s.d}</p>
