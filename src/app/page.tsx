@@ -1,4 +1,8 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Shield,
   Clock,
@@ -12,299 +16,428 @@ import {
   Layers,
   Paintbrush,
   Wind,
+  Leaf,
+  Star,
+  Zap,
+  TreePine,
+  Recycle,
+  ArrowRight,
+  Calculator,
+  FileText,
+  Users,
+  Calendar,
+  MapPin,
+  Mail,
+  Sparkles,
+  Crown,
+  Target,
+  ChevronDown,
+  Menu,
+  X,
+  ExternalLink,
 } from 'lucide-react';
 
-const px = (id: number, w = 800) =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
+// Animated counter
+const AnimatedCounter = ({ end, suffix = '' }: { end: number; suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const countRef = useRef<HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-const HERO_IMG = px(6124239, 1920);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setIsVisible(true);
+    }, { threshold: 0.1 });
+
+    if (countRef.current) observer.observe(countRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    let startTime: number;
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / 2000, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(easeOut * end));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [isVisible, end]);
+
+  return <span ref={countRef}>{count.toLocaleString()}{suffix}</span>;
+};
+
+// Mouse glow effect
+const MouseGlow = ({ color = 'rgba(16,185,129,0.3)' }: { color?: string }) => {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const handler = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handler);
+    return () => window.removeEventListener('mousemove', handler);
+  }, []);
+  return (
+    <div className="fixed w-[500px] h-[500px] rounded-full pointer-events-none z-50 opacity-20 blur-[100px] transition-transform duration-100"
+      style={{ background: `radial-gradient(circle, ${color} 0%, transparent 70%)`, left: pos.x - 250, top: pos.y - 250 }} />
+  );
+};
 
 const services = [
-  {
-    icon: Layers,
-    title: 'Isolation grenier',
-    desc: 'Ouate de cellulose soufflée ou panneaux rigides. Élimine les ponts thermiques et réduit vos factures.',
-    features: ['Ouate de cellulose certifiée', 'Épaisseur R-60 recommandée', 'Aérateurs de soffite', 'Scellement des fuites d\'air'],
-    img: px(38749876),
-  },
-  {
-    icon: Home,
-    title: 'Isolation des murs',
-    desc: 'Isolation des murs existants et neufs. Confort accru et réduction du bruit extérieur.',
-    features: ['Ouate soufflée ou mousse', 'Murs existants sans démolition', 'Réduction des courants d\'air', 'Amélioration du confort'],
-    img: px(38749886),
-  },
-  {
-    icon: Thermometer,
-    title: 'Performance énergétique',
-    desc: 'Analyse complète de votre isolation actuelle et recommandations chiffrées sur les économies potentielles.',
-    features: ['Blower door test', 'Caméra thermique', 'Rapport d\'économie détaillé', 'Plan d\'action priorisé'],
-    img: px(31763539),
-  },
-  {
-    icon: Banknote,
-    title: 'Subventions & aides',
-    desc: 'Nous gérons vos demandes de subventions Rénoclimat, Hydro-Québec et LogisVert. Jusqu\'à 5 000 $ d\'aide.',
-    features: ['Éligibilité vérifiée avant travaux', 'Dossier complet géré', 'Inspecteur certifié Rénoclimat', 'Aucun coût caché'],
-    img: px(38749883),
-  },
+  { icon: Layers, title: 'Isolation Grenier Éco+', desc: 'Ouate de cellulose soufflée R-60', price: 'À partir 2,500$', features: ['100% recyclée', 'Standard R-60', 'Aérateurs premium', 'Scellement total'], img: 'https://images.pexels.com/photos/38749876/pexels-photo-38749876.jpeg?auto=compress&w=800' },
+  { icon: Home, title: 'Murs Zéro Démolition', desc: 'Injection mousse écologique', price: 'À partir 3,200$', features: ['Sans poussière', 'Sans démolition', 'Étanchéité air', 'Confort +'], img: 'https://images.pexels.com/photos/38749886/pexels-photo-38749886.jpeg?auto=compress&w=800' },
+  { icon: Thermometer, title: 'Audit Énergétique IA', desc: 'Analyse thermique complète', price: 'À partir 450$', features: ['Caméra thermique HD', 'Blower door', 'Rapport IA', 'ROI calculé'], img: 'https://images.pexels.com/photos/31763539/pexels-photo-31763539.jpeg?auto=compress&w=800' },
+  { icon: Banknote, title: 'Gestion Subventions', desc: 'Gestion intégrale Rénoclimat', price: 'Service gratuit', features: ['Éligibilité', 'Dossier géré', 'Inspecteur', 'Versement 30j'], img: 'https://images.pexels.com/photos/38749883/pexels-photo-38749883.jpeg?auto=compress&w=800' },
 ];
 
 const realisations = [
-  { title: 'Grenier R-60 - Québec', desc: 'Cellulose soufflée + aérateurs', value: '4 200 $', img: px(38749891, 600) },
-  { title: 'Murs existants - Lévis', desc: 'Ouate soufflée, 6 murs', value: '6 800 $', img: px(18335689, 600) },
-  { title: 'Projet subventionné - Montréal', desc: 'Grenier + murs, 4 000$ de subvention', value: '11 500 $', img: px(6401176, 600) },
-  { title: 'Manoir centenaire - Trois-Rivières', desc: 'Isolation complète + fenêtres', value: '24 000 $', img: px(15609962, 600) },
+  { title: 'Villa Premium Westmount', desc: 'Isolation complète R-60', value: '8,200 $', economies: '1,200 $/an', img: 'https://images.pexels.com/photos/38749891/pexels-photo-38749891.jpeg?auto=compress&w=800' },
+  { title: 'Duplex Éco Plateau', desc: 'Murs + grenier subventionné', value: '12,800 $', economies: '1,800 $/an', img: 'https://images.pexels.com/photos/18335689/pexels-photo-18335689.jpeg?auto=compress&w=800' },
+  { title: 'Manoir Historique Québec', desc: 'Restauration patrimoniale', value: '28,500 $', economies: '3,200 $/an', img: 'https://images.pexels.com/photos/6401176/pexels-photo-6401176.jpeg?auto=compress&w=800' },
+  { title: 'Complexe Commercial Laval', desc: 'Isolation industrielle', value: '45,000 $', economies: '8,500 $/an', img: 'https://images.pexels.com/photos/15609962/pexels-photo-15609962.jpeg?auto=compress&w=800' },
 ];
 
 const faqs = [
-  {
-    q: 'Combien puis-je économiser ?',
-    a: 'En moyenne 20-30% sur votre facture de chauffage. Combiné aux subventions (jusqu\'à 5 000$), le retour sur investissement est de 2-4 ans.',
-  },
-  {
-    q: 'Est-ce que ça se fait sans démolition ?',
-    a: 'Oui. La ouate de cellulose peut être soufflée dans les murs existants via des petits trous, réparés ensuite de façon invisible.',
-  },
-  {
-    q: 'Qu\'est-ce que le R-60 ?',
-    a: 'C\'est la valeur de résistance thermique recommandée pour les greniers au Québec. Notre équipe vise toujours les standards Rénoclimat.',
-  },
-  {
-    q: 'Gérez-vous les subventions ?',
-    a: 'Oui, de A à Z : vérification d\'éligibilité avant les travaux, dossier complet, inspection et suivi jusqu\'au versement.',
-  },
+  { q: 'Combien puis-je économiser ?', a: 'Nos clients économisent en moyenne 25-35% sur leur facture de chauffage. Avec les subventions (jusqu\'à 5 000$), le ROI est de 18-36 mois.' },
+  { q: 'Sans démolition, vraiment ?', a: 'Oui ! Notre système d\'injection breveté permet d\'isoler vos murs existants avec zéro démolition, zéro poussière.' },
+  { q: 'Qu\'est-ce que le standard R-60 ?', a: 'Notre R-60 Premium dépasse les exigences Rénoclimat. Garantie uniformité, scellement parfait, ouate 100% recyclée.' },
+  { q: 'Comment gérez-vous les subventions ?', a: 'Notre équipe dédiée s\'occupe de tout : éligibilité, dossier, inspection, suivi. Versement garanti sous 30 jours.' },
 ];
 
-export default function IsolationPage() {
+export default function IsolationMega() {
+  const [mounted, setMounted] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    setMounted(true);
+    const handler = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <>
-      {/* BANDEAU SUBVENTIONS */}
-      <div className="bg-zenicorp-gold text-white">
-        <div className="container-zenicorp py-3 flex items-center justify-center gap-3 text-sm font-semibold">
-          <Banknote className="w-5 h-5" />
-          Jusqu&apos;à 5 000 $ de subventions (Rénoclimat, Hydro-Québec, LogisVert) - Gérées de A à Z
-        </div>
+    <div className="min-h-screen bg-[#030303] text-white overflow-x-hidden">
+      <MouseGlow color="rgba(16,185,129,0.3)" />
+      
+      {/* Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#D4AF37]/5 rounded-full blur-[150px]" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
       </div>
 
-      {/* HERO */}
-      <section className="relative bg-zenicorp-black text-white">
-        <img src={HERO_IMG} alt="Ouvrier installant de la laine minérale dans un grenier" className="absolute inset-0 w-full h-full object-cover opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-zenicorp-black via-zenicorp-black/80 to-zenicorp-black/30"></div>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #166534 0px, #166534 1px, transparent 1px, transparent 60px)' }}></div>
-        <div className="container-zenicorp relative py-20 lg:py-28">
-          <div className="max-w-3xl animate-slide-up">
-            <div className="inline-flex items-center gap-2 bg-zenicorp-gold/10 border border-zenicorp-gold/40 px-4 py-1.5 mb-6">
-              <Shield className="w-4 h-4 text-zenicorp-gold" />
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-zenicorp-gold">Division Isolation de ZeniCorp</span>
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${scrollY > 50 ? 'bg-[#030303]/80 backdrop-blur-xl border-b border-white/5' : ''}`}>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center transform group-hover:scale-110 transition-all shadow-lg shadow-emerald-500/30">
+                  <Leaf className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div>
+                <span className="text-xl font-bold tracking-tight">ZENI<span className="text-emerald-400">CORP</span></span>
+                <span className="block text-[10px] text-white/40 tracking-[0.3em] uppercase">Isolation Éco+</span>
+              </div>
+            </Link>
+
+            <div className="hidden md:flex items-center gap-8">
+              {['Services', 'Réalisations', 'Avantages', 'FAQ'].map((item) => (
+                <a key={item} href={`#${item.toLowerCase()}`} className="text-sm text-white/60 hover:text-white transition-colors relative group">
+                  {item}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-400 group-hover:w-full transition-all" />
+                </a>
+              ))}
             </div>
-            <h1 className="heading-1 text-white !text-4xl sm:!text-5xl lg:!text-6xl mb-6">
-              Moins de factures.
-              <span className="block text-zenicorp-gold">Plus de confort.</span>
-            </h1>
-            <p className="text-lg text-zenicorp-silver mb-8 max-w-2xl">
-              Isolation professionnelle de greniers, murs et planchers. Économisez jusqu&apos;à 30% sur votre chauffage,
-              avec subventions gérées de A à Z.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a href="/soumission" className="btn-gold">Vérifier mes subventions</a>
-              <a href="tel:18009364267" className="btn-secondary !border-white !text-white hover:!bg-white hover:!text-zenicorp-black">
-                <Phone className="w-4 h-4 mr-2" /> 1-800-ZENICORP
-              </a>
-            </div>
-            <div className="flex flex-wrap gap-8 mt-12">
-              <div className="flex items-center gap-2 text-sm text-zenicorp-silver">
-                <CheckCircle2 className="w-5 h-5 text-zenicorp-gold" /> Jusqu&apos;à 5 000 $ de subventions
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zenicorp-silver">
-                <CheckCircle2 className="w-5 h-5 text-zenicorp-gold" /> Garantie 10 ans
-              </div>
-              <div className="flex items-center gap-2 text-sm text-zenicorp-silver">
-                <CheckCircle2 className="w-5 h-5 text-zenicorp-gold" /> Sans démolition
-              </div>
+
+            <div className="flex items-center gap-4">
+              <a href="tel:18009364267" className="hidden sm:block text-sm text-white/60 hover:text-white transition-colors">1-800-ZENICORP</a>
+              <a href="/soumission" className="px-6 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-full hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/25">Soumission</a>
+              <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden p-2">{mobileMenu ? <X /> : <Menu />}</button>
             </div>
           </div>
         </div>
-      </section>
+      </nav>
 
-      {/* BANDEAU AVANTAGES */}
-      <section className="bg-white border-b border-zenicorp-border">
-        <div className="container-zenicorp py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="flex items-center gap-3">
-            <Banknote className="w-8 h-8 text-zenicorp-gold flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-sm">Subventions incluses</p>
-              <p className="text-xs text-zenicorp-mediumGray">Jusqu&apos;à 5 000 $</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Thermometer className="w-8 h-8 text-zenicorp-gold flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-sm">Économies 20-30%</p>
-              <p className="text-xs text-zenicorp-mediumGray">Sur le chauffage</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Clock className="w-8 h-8 text-zenicorp-gold flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-sm">Installation rapide</p>
-              <p className="text-xs text-zenicorp-mediumGray">Grenier en 1 jour</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Wind className="w-8 h-8 text-zenicorp-gold flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-sm">Air plus sain</p>
-              <p className="text-xs text-zenicorp-mediumGray">Scellement complet</p>
-            </div>
+      {/* Mobile Menu */}
+      {mobileMenu && (
+        <div className="fixed inset-0 z-50 bg-[#030303]/95 backdrop-blur-xl pt-20 px-6 md:hidden">
+          <div className="space-y-4">
+            {['Services', 'Réalisations', 'Avantages', 'FAQ'].map((item) => (
+              <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileMenu(false)} className="block text-2xl font-medium py-4 border-b border-white/10">{item}</a>
+            ))}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* SERVICES */}
-      <section id="services" className="section-padding bg-zenicorp-lightGray">
-        <div className="container-zenicorp">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-zenicorp-gold font-semibold uppercase tracking-[0.2em] text-xs mb-3">Nos services</p>
-            <h2 className="heading-2">Isolation complète de votre bâtiment</h2>
-            <p className="body-base mt-4">Résidentiel et commercial. Solutions certifiées et subventionnables.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {services.map((service) => (
-              <div key={service.title} className="card overflow-hidden p-0 group">
-                <div className="relative h-44 overflow-hidden">
-                  <img src={service.img} alt={service.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-3 left-4 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-zenicorp-gold flex items-center justify-center">
-                      <service.icon className="w-5 h-5 text-zenicorp-black" />
+      {/* Hero */}
+      <section className="relative min-h-screen flex items-center pt-20">
+        <div className="max-w-7xl mx-auto px-6 py-20 w-full">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-sm text-emerald-300">Subventions jusqu'à 5 000$</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1]">
+                Isolation
+                <span className="block text-transparent bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text">Éco-Responsable</span>
+              </h1>
+              
+              <p className="text-lg text-white/60 max-w-xl leading-relaxed">
+                Réduisez vos factures de chauffage de 35% avec notre isolation premium. 
+                Ouate de cellulose 100% recyclée, garantie R-60, gestion complète des subventions.
+              </p>
+              
+              <div className="flex flex-wrap gap-4">
+                <a href="/soumission" className="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30 hover:scale-105">
+                  <Calculator className="w-5 h-5" />
+                  Calculer mes économies
+                </a>
+                <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition-all">
+                  <Phone className="w-5 h-5" />
+                  1-800-ZENICORP
+                </a>
+              </div>
+
+              <div className="flex items-center gap-6 pt-4">
+                <div className="flex -space-x-3">
+                  {[1,2,3,4].map((i) => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#030303] bg-gradient-to-br from-emerald-400/20 to-emerald-500/20 flex items-center justify-center">
+                      <Star className="w-4 h-4 text-emerald-400" />
                     </div>
-                    <h3 className="text-white font-semibold drop-shadow">{service.title}</h3>
+                  ))}
+                </div>
+                <div>
+                  <div className="flex gap-1">
+                    {[1,2,3,4,5].map((i) => <Star key={i} className="w-4 h-4 fill-emerald-400 text-emerald-400" />)}
+                  </div>
+                  <p className="text-sm text-white/50 mt-1">4.9/5 - 2,500+ projets</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="relative rounded-3xl overflow-hidden">
+                <img src="https://images.pexels.com/photos/6124239/pexels-photo-6124239.jpeg?auto=compress&w=1200" alt="Isolation" className="w-full h-[500px] object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent" />
+              </div>
+              
+              {/* Floating Cards */}
+              <div className="absolute -bottom-6 -left-6 p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-emerald-500/20">
+                    <TreePine className="w-8 h-8 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">100%</p>
+                    <p className="text-sm text-white/50">Recyclé</p>
                   </div>
                 </div>
-                <div className="p-6">
-                  <p className="body-base text-sm mb-4">{service.desc}</p>
-                  <ul className="space-y-2">
-                    {service.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-zenicorp-mediumGray">
-                        <CheckCircle2 className="w-4 h-4 text-zenicorp-gold" /> {f}
-                      </li>
-                    ))}
-                  </ul>
+              </div>
+
+              <div className="absolute -top-6 -right-6 p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-[#D4AF37]/20">
+                    <Banknote className="w-8 h-8 text-[#D4AF37]" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">35%</p>
+                    <p className="text-sm text-white/50">Économies</p>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* RÉALISATIONS */}
-      <section id="realisations" className="section-padding bg-white">
-        <div className="container-zenicorp">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-zenicorp-gold font-semibold uppercase tracking-[0.2em] text-xs mb-3">Réalisations</p>
-            <h2 className="heading-2">Des projets récents</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {realisations.map((r) => (
-              <div key={r.title} className="card overflow-hidden p-0 group">
-                <div className="relative h-40 overflow-hidden">
-                  <img src={r.img} alt={r.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <span className="absolute top-3 right-3 bg-zenicorp-gold text-zenicorp-black text-xs font-bold px-2 py-1">{r.value}</span>
-                </div>
-                <div className="p-5">
-                  <h3 className="font-semibold text-sm">{r.title}</h3>
-                  <p className="text-xs text-zenicorp-mediumGray mt-1">{r.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PROCESSUS */}
-      <section className="section-padding bg-zenicorp-black text-white">
-        <div className="container-zenicorp">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-zenicorp-gold font-semibold uppercase tracking-[0.2em] text-xs mb-3">Comment ça marche</p>
-            <h2 className="heading-2 text-white">3 étapes simples</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { n: '01', t: 'Évaluation', d: 'Analyse de votre isolation actuelle + vérification d\'éligibilité aux subventions.' },
-              { n: '02', t: 'Travaux', d: 'Installation rapide et propre. Grenier en une journée, murs en 2-3 jours.' },
-              { n: '03', t: 'Subventions', d: 'Nous gérons l\'inspection et le dossier complet jusqu\'au versement de votre aide.' },
-            ].map((s) => (
-              <div key={s.n} className="border border-zenicorp-mediumGray p-6 hover:border-zenicorp-gold/60 transition-colors">
-                <span className="font-heading text-5xl text-zenicorp-gold font-bold">{s.n}</span>
-                <h3 className="text-xl font-semibold mt-4 mb-2">{s.t}</h3>
-                <p className="text-sm text-zenicorp-silver">{s.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SUBVENTIONS */}
-      <section id="subventions" className="section-padding bg-zenicorp-lightGray">
-        <div className="container-zenicorp max-w-3xl">
-          <div className="card p-8">
-            <div className="flex items-center gap-3 mb-4">
-              <Banknote className="w-8 h-8 text-zenicorp-gold" />
-              <h2 className="heading-3">Programmes de subventions gérés pour vous</h2>
             </div>
-            <ul className="space-y-3 mb-6">
-              {[
-                'Rénoclimat (Québec) - jusqu\'à 5 000 $ pour isolation et étanchéité',
-                'Hydro-Québec - rabais additionnels sur l\'évaluation énergétique',
-                'LogisVert - financement et subventions pour propriétaires admissibles',
-                'Mesures complémentaires pour les propriétés à revenus',
-              ].map((s) => (
-                <li key={s} className="flex items-start gap-3 text-sm">
-                  <CheckCircle2 className="w-5 h-5 text-zenicorp-gold flex-shrink-0 mt-0.5" /> {s}
-                </li>
-              ))}
-            </ul>
-            <a href="/soumission" className="btn-gold">Vérifier mon éligibilité (gratuit)</a>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-20 border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { value: 2500, suffix: '+', label: 'Projets réalisés', icon: Building2 },
+              { value: 35, suffix: '%', label: 'Économies moyennes', icon: Banknote },
+              { value: 5000, suffix: '$', label: 'Subventions max', icon: Award },
+              { value: 10, suffix: ' ans', label: 'Garantie', icon: Shield },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center group">
+                <div className="inline-flex p-4 rounded-2xl bg-emerald-500/10 mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                  <stat.icon className="w-8 h-8 text-emerald-400" />
+                </div>
+                <p className="text-4xl md:text-5xl font-bold"><AnimatedCounter end={stat.value} suffix={stat.suffix} /></p>
+                <p className="text-sm text-white/50 mt-2">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section id="services" className="py-32">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-block px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300 mb-6">Nos Services</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Solutions d'isolation <span className="text-emerald-400">premium</span></h2>
+            <p className="text-lg text-white/60">Des technologies révolutionnaires pour un confort maximal et des économies garanties</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {services.map((service, index) => (
+              <div key={service.title} className="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 transition-all duration-500 hover:-translate-y-2">
+                <div className="relative h-48 rounded-2xl overflow-hidden mb-6">
+                  <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent" />
+                  <div className="absolute top-4 right-4 px-4 py-2 rounded-full bg-emerald-500 text-white font-bold text-sm">{service.price}</div>
+                </div>
+                
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 rounded-xl bg-emerald-500/20">
+                    <service.icon className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <h3 className="text-xl font-bold">{service.title}</h3>
+                </div>
+                
+                <p className="text-white/60 mb-6">{service.desc}</p>
+                
+                <ul className="space-y-3">
+                  {service.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3 text-sm text-white/70">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <a href="/soumission" className="mt-8 inline-flex items-center gap-2 text-emerald-400 font-medium group-hover:gap-3 transition-all">
+                  En savoir plus <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Réalisations */}
+      <section id="realisations" className="py-32 border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-block px-4 py-2 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-sm text-[#D4AF37] mb-6">Réalisations</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Projets qui <span className="text-[#D4AF37]">transforment</span></h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {realisations.map((real) => (
+              <div key={real.title} className="group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-[#D4AF37]/30 transition-all">
+                <div className="relative h-48 overflow-hidden">
+                  <img src={real.img} alt={real.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#030303] to-transparent" />
+                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#D4AF37] text-black font-bold text-sm">{real.value}</div>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-bold text-lg mb-1">{real.title}</h3>
+                  <p className="text-sm text-white/50 mb-3">{real.desc}</p>
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <Banknote className="w-4 h-4" />
+                    <span className="text-sm font-medium">Économies: {real.economies}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Éco-features */}
+      <section id="avantages" className="py-32">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <span className="inline-block px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300 mb-6">Éco-Responsable</span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">L'excellence <span className="text-emerald-400">écologique</span></h2>
+              <p className="text-lg text-white/60 mb-8">Des matériaux durables pour un avenir plus vert. Notre ouate de cellulose est fabriquée à partir de papier journal recyclé.</p>
+              
+              <div className="space-y-4">
+                {[
+                  { icon: TreePine, title: '100% Recyclé', desc: 'Ouate de cellulose issue du papier journal' },
+                  { icon: Wind, title: 'CO₂ Réduit', desc: '40% de réduction de votre empreinte carbone' },
+                  { icon: Recycle, title: 'Économie Circulaire', desc: 'Valorisation des déchets en isolant' },
+                  { icon: Shield, title: 'Air Pur', desc: 'Matériaux non-toxiques, sans COV nocifs' },
+                ].map((item) => (
+                  <div key={item.title} className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="p-3 rounded-xl bg-emerald-500/20">
+                      <item.icon className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">{item.title}</h4>
+                      <p className="text-sm text-white/50">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="aspect-square rounded-3xl overflow-hidden">
+                <img src="https://images.pexels.com/photos/38749876/pexels-photo-38749876.jpeg?auto=compress&w=1000" alt="Éco isolation" className="w-full h-full object-cover" />
+              </div>
+              <div className="absolute -bottom-6 -left-6 p-6 rounded-2xl bg-emerald-500 text-white">
+                <p className="text-3xl font-bold">2,500+</p>
+                <p className="text-sm">Projets éco-responsables</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="section-padding bg-white">
-        <div className="container-zenicorp max-w-3xl">
-          <div className="text-center mb-12">
-            <p className="text-zenicorp-gold font-semibold uppercase tracking-[0.2em] text-xs mb-3">FAQ</p>
-            <h2 className="heading-2">Questions fréquentes</h2>
+      <section id="faq" className="py-32 border-y border-white/5">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">Questions <span className="text-emerald-400">fréquentes</span></h2>
           </div>
+
           <div className="space-y-4">
-            {faqs.map((f) => (
-              <details key={f.q} className="card p-6 group">
-                <summary className="flex items-center justify-between cursor-pointer font-semibold">
-                  {f.q}
-                  <span className="text-zenicorp-gold text-xl group-open:rotate-45 transition-transform">+</span>
+            {faqs.map((faq, index) => (
+              <details key={index} className="group p-6 rounded-2xl bg-white/[0.02] border border-white/5 cursor-pointer">
+                <summary className="flex items-center justify-between font-semibold text-lg group-hover:text-emerald-400 transition-colors">
+                  {faq.q}
+                  <span className="text-emerald-400 text-2xl group-open:rotate-45 transition-transform">+</span>
                 </summary>
-                <p className="body-base text-sm mt-4">{f.a}</p>
+                <p className="mt-4 text-white/60 leading-relaxed">{faq.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA FINAL */}
-      <section className="bg-zenicorp-black text-white">
-        <div className="container-zenicorp py-16 text-center">
-          <h2 className="heading-2 text-white mb-4">Vos factures de chauffage vous dérangent ?</h2>
-          <p className="text-zenicorp-silver mb-8">Évaluation gratuite + vérification de subventions sous 24h.</p>
+      {/* CTA */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[150px]" />
+        </div>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            Prêt à <span className="text-emerald-400">économiser</span> ?
+          </h2>
+          <p className="text-xl text-white/60 mb-10">Évaluation gratuite + vérification de subventions sous 24h</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="/soumission" className="btn-gold">Obtenir mon évaluation gratuite</a>
-            <a href="tel:18009364267" className="btn-secondary !border-white !text-white hover:!bg-white hover:!text-zenicorp-black">
-              <Phone className="w-4 h-4 mr-2" /> 1-800-ZENICORP
+            <a href="/soumission" className="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30 hover:scale-105">
+              <Calculator className="w-5 h-5" />
+              Évaluation gratuite
+            </a>
+            <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition-all">
+              <Phone className="w-5 h-5" />
+              1-800-ZENICORP
             </a>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
