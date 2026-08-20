@@ -2,252 +2,213 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
-  Shield,
-  Clock,
-  Award,
-  Phone,
-  CheckCircle2,
-  Home,
-  Building2,
-  Banknote,
-  Thermometer,
-  Layers,
-  Paintbrush,
-  Wind,
-  Leaf,
-  Star,
-  Zap,
-  TreePine,
-  Recycle,
-  ArrowRight,
-  Calculator,
-  FileText,
-  Users,
-  Calendar,
-  MapPin,
-  Mail,
-  Sparkles,
-  Crown,
-  Target,
-  ChevronDown,
-  Menu,
-  X,
-  ExternalLink,
+  Shield, Clock, Award, Phone, CheckCircle2, Home, Building2, Banknote,
+  Thermometer, Layers, Paintbrush, Wind, Leaf, Star, Zap, TreePine, Recycle,
+  ArrowRight, Calculator, Users, Sparkles, Crown
 } from 'lucide-react';
 
 // Animated counter
-const AnimatedCounter = ({ end, suffix = '' }: { end: number; suffix?: string }) => {
+const Counter = ({ end, suffix = '' }: { end: number; suffix?: string }) => {
   const [count, setCount] = useState(0);
-  const countRef = useRef<HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) setIsVisible(true);
     }, { threshold: 0.1 });
-
-    if (countRef.current) observer.observe(countRef.current);
+    if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
     if (!isVisible) return;
-    let startTime: number;
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / 2000, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.floor(easeOut * end));
-      if (progress < 1) requestAnimationFrame(animate);
+    let start: number;
+    const animate = (now: number) => {
+      if (!start) start = now;
+      const p = Math.min((now - start) / 2000, 1);
+      setCount(Math.floor((1 - Math.pow(1 - p, 4)) * end));
+      if (p < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
   }, [isVisible, end]);
 
-  return <span ref={countRef}>{count.toLocaleString()}{suffix}</span>;
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
 
-// Mouse glow effect
-const MouseGlow = ({ color = 'rgba(16,185,129,0.3)' }: { color?: string }) => {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    const handler = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handler);
-    return () => window.removeEventListener('mousemove', handler);
-  }, []);
-  return (
-    <div className="fixed w-[500px] h-[500px] rounded-full pointer-events-none z-50 opacity-20 blur-[100px] transition-transform duration-100"
-      style={{ background: `radial-gradient(circle, ${color} 0%, transparent 70%)`, left: pos.x - 250, top: pos.y - 250 }} />
-  );
-};
+// Sparkle component
+const Sparkle = ({ delay }: { delay: number }) => (
+  <div 
+    className="absolute w-1 h-1 bg-white rounded-full animate-ping"
+    style={{ 
+      animationDelay: `${delay}s`,
+      animationDuration: '3s',
+      opacity: 0.8
+    }}
+  />
+);
+
+// Floating particles
+const Particle = ({ color, delay, x, y }: { color: string; delay: number; x: string; y: string }) => (
+  <div 
+    className="absolute w-2 h-2 rounded-full opacity-60"
+    style={{ 
+      background: color,
+      left: x,
+      top: y,
+      animation: `float ${3 + delay}s ease-in-out infinite`,
+      animationDelay: `${delay}s`,
+      filter: 'blur(1px)'
+    }}
+  />
+);
 
 const services = [
-  { icon: Layers, title: 'Isolation Grenier Éco+', desc: 'Ouate de cellulose soufflée R-60', price: 'À partir 2,500$', features: ['100% recyclée', 'Standard R-60', 'Aérateurs premium', 'Scellement total'], img: 'https://images.pexels.com/photos/38749876/pexels-photo-38749876.jpeg?auto=compress&w=800' },
-  { icon: Home, title: 'Murs Zéro Démolition', desc: 'Injection mousse écologique', price: 'À partir 3,200$', features: ['Sans poussière', 'Sans démolition', 'Étanchéité air', 'Confort +'], img: 'https://images.pexels.com/photos/38749886/pexels-photo-38749886.jpeg?auto=compress&w=800' },
-  { icon: Thermometer, title: 'Audit Énergétique IA', desc: 'Analyse thermique complète', price: 'À partir 450$', features: ['Caméra thermique HD', 'Blower door', 'Rapport IA', 'ROI calculé'], img: 'https://images.pexels.com/photos/31763539/pexels-photo-31763539.jpeg?auto=compress&w=800' },
-  { icon: Banknote, title: 'Gestion Subventions', desc: 'Gestion intégrale Rénoclimat', price: 'Service gratuit', features: ['Éligibilité', 'Dossier géré', 'Inspecteur', 'Versement 30j'], img: 'https://images.pexels.com/photos/38749883/pexels-photo-38749883.jpeg?auto=compress&w=800' },
+  { icon: Layers, title: 'Isolation Grenier Éco+', desc: 'Ouate de cellulose soufflée R-60', price: '2,500$', features: ['100% recyclée', 'Standard R-60', 'Aérateurs premium', 'Scellement total'], color: 'from-emerald-300 to-teal-300' },
+  { icon: Home, title: 'Murs Zéro Démolition', desc: 'Injection mousse écologique', price: '3,200$', features: ['Sans poussière', 'Sans démolition', 'Étanchéité air', 'Confort +'], color: 'from-cyan-300 to-blue-300' },
+  { icon: Thermometer, title: 'Audit Énergétique IA', desc: 'Analyse thermique complète', price: '450$', features: ['Caméra thermique HD', 'Blower door', 'Rapport IA', 'ROI calculé'], color: 'from-violet-300 to-purple-300' },
+  { icon: Banknote, title: 'Gestion Subventions', desc: 'Gestion intégrale Rénoclimat', price: 'Gratuit', features: ['Éligibilité', 'Dossier géré', 'Inspecteur', 'Versement 30j'], color: 'from-amber-300 to-orange-300' },
 ];
 
 const realisations = [
-  { title: 'Villa Premium Westmount', desc: 'Isolation complète R-60', value: '8,200 $', economies: '1,200 $/an', img: 'https://images.pexels.com/photos/38749891/pexels-photo-38749891.jpeg?auto=compress&w=800' },
-  { title: 'Duplex Éco Plateau', desc: 'Murs + grenier subventionné', value: '12,800 $', economies: '1,800 $/an', img: 'https://images.pexels.com/photos/18335689/pexels-photo-18335689.jpeg?auto=compress&w=800' },
-  { title: 'Manoir Historique Québec', desc: 'Restauration patrimoniale', value: '28,500 $', economies: '3,200 $/an', img: 'https://images.pexels.com/photos/6401176/pexels-photo-6401176.jpeg?auto=compress&w=800' },
-  { title: 'Complexe Commercial Laval', desc: 'Isolation industrielle', value: '45,000 $', economies: '8,500 $/an', img: 'https://images.pexels.com/photos/15609962/pexels-photo-15609962.jpeg?auto=compress&w=800' },
+  { title: 'Villa Westmount', desc: 'Isolation R-60', value: '8,200 $', economies: '1,200$/an', color: 'bg-emerald-100' },
+  { title: 'Duplex Plateau', desc: 'Murs + grenier', value: '12,800 $', economies: '1,800$/an', color: 'bg-cyan-100' },
+  { title: 'Manoir Québec', desc: 'Restauration', value: '28,500 $', economies: '3,200$/an', color: 'bg-violet-100' },
+  { title: 'Commercial Laval', desc: 'Industriel', value: '45,000 $', economies: '8,500$/an', color: 'bg-amber-100' },
 ];
 
-const faqs = [
-  { q: 'Combien puis-je économiser ?', a: 'Nos clients économisent en moyenne 25-35% sur leur facture de chauffage. Avec les subventions (jusqu\'à 5 000$), le ROI est de 18-36 mois.' },
-  { q: 'Sans démolition, vraiment ?', a: 'Oui ! Notre système d\'injection breveté permet d\'isoler vos murs existants avec zéro démolition, zéro poussière.' },
-  { q: 'Qu\'est-ce que le standard R-60 ?', a: 'Notre R-60 Premium dépasse les exigences Rénoclimat. Garantie uniformité, scellement parfait, ouate 100% recyclée.' },
-  { q: 'Comment gérez-vous les subventions ?', a: 'Notre équipe dédiée s\'occupe de tout : éligibilité, dossier, inspection, suivi. Versement garanti sous 30 jours.' },
-];
-
-export default function IsolationMega() {
+export default function IsolationPale() {
   const [mounted, setMounted] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
 
-  useEffect(() => {
-    setMounted(true);
-    const handler = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
+  useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white overflow-x-hidden">
-      <MouseGlow color="rgba(16,185,129,0.3)" />
-      
-      {/* Background */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-800 overflow-x-hidden relative">
+      {/* Background Pattern */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#D4AF37]/5 rounded-full blur-[150px]" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(16,185,129,0.3) 2px, transparent 0)`,
+          backgroundSize: '48px 48px'
+        }} />
+        {/* Soft blobs */}
+        <div className="absolute top-20 left-10 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-200/20 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${scrollY > 50 ? 'bg-[#030303]/80 backdrop-blur-xl border-b border-white/5' : ''}`}>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-emerald-200/30">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center transform group-hover:scale-110 transition-all shadow-lg shadow-emerald-500/30">
-                  <Leaf className="w-6 h-6 text-white" />
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-2xl shadow-emerald-400/40 ring-8 ring-emerald-100">
+                  <Leaf className="w-10 h-10 text-white" />
                 </div>
+                <Sparkle delay={0} />
+                <Sparkle delay={1} />
               </div>
               <div>
-                <span className="text-xl font-bold tracking-tight">ZENI<span className="text-emerald-400">CORP</span></span>
-                <span className="block text-[10px] text-white/40 tracking-[0.3em] uppercase">Isolation Éco+</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">ZENICORP</span>
+                <span className="block text-[10px] text-emerald-600/70 tracking-[0.3em] uppercase font-medium">Isolation Éco+</span>
               </div>
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              {['Services', 'Réalisations', 'Avantages', 'FAQ'].map((item) => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="text-sm text-white/60 hover:text-white transition-colors relative group">
+              {['Services', 'Réalisations', 'Avantages'].map((item) => (
+                <a key={item} href={`#${item.toLowerCase()}`} className="text-sm text-slate-600 hover:text-emerald-600 transition-colors font-medium">
                   {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-400 group-hover:w-full transition-all" />
                 </a>
               ))}
             </div>
 
             <div className="flex items-center gap-4">
-              <a href="tel:18009364267" className="hidden sm:block text-sm text-white/60 hover:text-white transition-colors">1-800-ZENICORP</a>
-              <a href="/soumission" className="px-6 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-full hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/25">Soumission</a>
-              <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden p-2">{mobileMenu ? <X /> : <Menu />}</button>
+              <a href="/soumission" className="px-6 py-3 bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-semibold rounded-full shadow-lg shadow-emerald-400/30 hover:shadow-xl hover:scale-105 transition-all ring-2 ring-emerald-200">
+                Devis gratuit
+              </a>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      {mobileMenu && (
-        <div className="fixed inset-0 z-50 bg-[#030303]/95 backdrop-blur-xl pt-20 px-6 md:hidden">
-          <div className="space-y-4">
-            {['Services', 'Réalisations', 'Avantages', 'FAQ'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileMenu(false)} className="block text-2xl font-medium py-4 border-b border-white/10">{item}</a>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center pt-20">
-        <div className="max-w-7xl mx-auto px-6 py-20 w-full">
+      <section className="relative pt-32 pb-20">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-sm text-emerald-300">Subventions jusqu'à 5 000$</span>
+            <div className="space-y-8 relative">
+              {/* Decorative sparkles */}
+              <Particle color="#34d399" delay={0} x="80%" y="20%" />
+              <Particle color="#2dd4bf" delay={0.5} x="90%" y="60%" />
+              <Particle color="#a78bfa" delay={1} x="10%" y="80%" />
+
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 border border-emerald-200">
+                <Sparkles className="w-4 h-4 text-emerald-500" />
+                <span className="text-sm text-emerald-700 font-medium">Subventions jusqu'à 5 000$</span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1]">
-                Isolation
-                <span className="block text-transparent bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text">Éco-Responsable</span>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] text-slate-800">
+                Isolation{' '}
+                <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">Éco+</span>
               </h1>
               
-              <p className="text-lg text-white/60 max-w-xl leading-relaxed">
-                Réduisez vos factures de chauffage de 35% avec notre isolation premium. 
-                Ouate de cellulose 100% recyclée, garantie R-60, gestion complète des subventions.
+              <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
+                Réduisez vos factures de chauffage de <span className="font-bold text-emerald-600">35%</span> avec notre isolation premium. 
+                Ouate 100% recyclée, garantie R-60.
               </p>
               
               <div className="flex flex-wrap gap-4">
-                <a href="/soumission" className="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30 hover:scale-105">
-                  <Calculator className="w-5 h-5" />
-                  Calculer mes économies
+                <a href="/soumission" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-bold rounded-full shadow-xl shadow-emerald-400/40 hover:shadow-2xl hover:scale-105 transition-all overflow-hidden">
+                  <span className="relative z-10">Calculer mes économies</span>
+                  <ArrowRight className="relative z-10 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
-                <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition-all">
+                
+                <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 bg-white border-2 border-emerald-200 text-emerald-700 font-semibold rounded-full hover:bg-emerald-50 transition-all shadow-md">
                   <Phone className="w-5 h-5" />
                   1-800-ZENICORP
                 </a>
               </div>
 
-              <div className="flex items-center gap-6 pt-4">
-                <div className="flex -space-x-3">
-                  {[1,2,3,4].map((i) => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#030303] bg-gradient-to-br from-emerald-400/20 to-emerald-500/20 flex items-center justify-center">
-                      <Star className="w-4 h-4 text-emerald-400" />
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <div className="flex gap-1">
-                    {[1,2,3,4,5].map((i) => <Star key={i} className="w-4 h-4 fill-emerald-400 text-emerald-400" />)}
-                  </div>
-                  <p className="text-sm text-white/50 mt-1">4.9/5 - 2,500+ projets</p>
-                </div>
+              {/* Trust badges */}
+              <div className="flex flex-wrap items-center gap-4 pt-4">
+                {['Garantie 10 ans', 'Éco-responsable', 'Service 24/7'].map((badge) => (
+                  <span key={badge} className="px-4 py-2 bg-white/80 border border-emerald-100 rounded-full text-sm text-emerald-700 font-medium shadow-sm">
+                    ✓ {badge}
+                  </span>
+                ))}
               </div>
             </div>
 
             <div className="relative">
-              <div className="relative rounded-3xl overflow-hidden">
-                <img src="https://images.pexels.com/photos/6124239/pexels-photo-6124239.jpeg?auto=compress&w=1200" alt="Isolation" className="w-full h-[500px] object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent" />
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-emerald-200/50 ring-4 ring-white">
+                <img src="https://images.pexels.com/photos/6124239/pexels-photo-6124239.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Isolation" className="w-full h-[700px] object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 to-transparent" />
               </div>
               
-              {/* Floating Cards */}
-              <div className="absolute -bottom-6 -left-6 p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
+              {/* Floating cards */}
+              <div className="absolute -bottom-6 -left-6 p-6 rounded-2xl bg-white shadow-xl border border-emerald-100">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-emerald-500/20">
-                    <TreePine className="w-8 h-8 text-emerald-400" />
+                  <div className="p-3 rounded-xl bg-emerald-100">
+                    <TreePine className="w-8 h-8 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">100%</p>
-                    <p className="text-sm text-white/50">Recyclé</p>
+                    <p className="text-2xl font-bold text-slate-800">100%</p>
+                    <p className="text-sm text-slate-500">Recyclé</p>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -top-6 -right-6 p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
+              <div className="absolute -top-6 -right-6 p-6 rounded-2xl bg-white shadow-xl border border-amber-100">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-[#D4AF37]/20">
-                    <Banknote className="w-8 h-8 text-[#D4AF37]" />
+                  <div className="p-3 rounded-xl bg-amber-100">
+                    <Banknote className="w-8 h-8 text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">35%</p>
-                    <p className="text-sm text-white/50">Économies</p>
+                    <p className="text-2xl font-bold text-slate-800">35%</p>
+                    <p className="text-sm text-slate-500">Économies</p>
                   </div>
                 </div>
               </div>
@@ -257,21 +218,21 @@ export default function IsolationMega() {
       </section>
 
       {/* Stats */}
-      <section className="py-20 border-y border-white/5">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { value: 2500, suffix: '+', label: 'Projets réalisés', icon: Building2 },
-              { value: 35, suffix: '%', label: 'Économies moyennes', icon: Banknote },
-              { value: 5000, suffix: '$', label: 'Subventions max', icon: Award },
-              { value: 10, suffix: ' ans', label: 'Garantie', icon: Shield },
+              { value: 2500, suffix: '+', label: 'Projets', icon: Home, color: 'from-emerald-300 to-teal-300' },
+              { value: 35, suffix: '%', label: 'Économies', icon: Banknote, color: 'from-amber-300 to-orange-300' },
+              { value: 5000, suffix: '$', label: 'Subventions', icon: Award, color: 'from-violet-300 to-purple-300' },
+              { value: 10, suffix: ' ans', label: 'Garantie', icon: Shield, color: 'from-cyan-300 to-blue-300' },
             ].map((stat) => (
-              <div key={stat.label} className="text-center group">
-                <div className="inline-flex p-4 rounded-2xl bg-emerald-500/10 mb-4 group-hover:bg-emerald-500/20 transition-colors">
-                  <stat.icon className="w-8 h-8 text-emerald-400" />
+              <div key={stat.label} className="group p-8 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-200 transition-all shadow-lg hover:shadow-xl">
+                <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${stat.color} mb-4 group-hover:scale-110 transition-transform`}>
+                  <stat.icon className="w-8 h-8 text-white" />
                 </div>
-                <p className="text-4xl md:text-5xl font-bold"><AnimatedCounter end={stat.value} suffix={stat.suffix} /></p>
-                <p className="text-sm text-white/50 mt-2">{stat.label}</p>
+                <p className="text-4xl font-bold text-slate-800"><Counter end={stat.value} suffix={stat.suffix} /></p>
+                <p className="text-sm text-slate-500 mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -279,44 +240,40 @@ export default function IsolationMega() {
       </section>
 
       {/* Services */}
-      <section id="services" className="py-32">
+      <section id="services" className="py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300 mb-6">Nos Services</span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Solutions d'isolation <span className="text-emerald-400">premium</span></h2>
-            <p className="text-lg text-white/60">Des technologies révolutionnaires pour un confort maximal et des économies garanties</p>
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              Nos Services
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
+              Solutions <span className="text-emerald-500">premium</span>
+            </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {services.map((service, index) => (
-              <div key={service.title} className="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-emerald-500/30 transition-all duration-500 hover:-translate-y-2">
-                <div className="relative h-48 rounded-2xl overflow-hidden mb-6">
-                  <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent" />
-                  <div className="absolute top-4 right-4 px-4 py-2 rounded-full bg-emerald-500 text-white font-bold text-sm">{service.price}</div>
-                </div>
-                
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 rounded-xl bg-emerald-500/20">
-                    <service.icon className="w-6 h-6 text-emerald-400" />
+            {services.map((service) => (
+              <div key={service.title} className="group p-8 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-200 transition-all shadow-lg hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className={`p-4 rounded-2xl bg-gradient-to-r ${service.color} shadow-lg`}>
+                    <service.icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold">{service.title}</h3>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-slate-800">{service.title}</h3>
+                    <p className="text-slate-500">{service.desc}</p>
+                  </div>
+                  <span className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-bold">{service.price}</span>
                 </div>
                 
-                <p className="text-white/60 mb-6">{service.desc}</p>
-                
-                <ul className="space-y-3">
-                  {service.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3 text-sm text-white/70">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      {feature}
+                <ul className="grid grid-cols-2 gap-3">
+                  {service.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                      {f}
                     </li>
                   ))}
                 </ul>
-
-                <a href="/soumission" className="mt-8 inline-flex items-center gap-2 text-emerald-400 font-medium group-hover:gap-3 transition-all">
-                  En savoir plus <ArrowRight className="w-4 h-4" />
-                </a>
               </div>
             ))}
           </div>
@@ -324,93 +281,26 @@ export default function IsolationMega() {
       </section>
 
       {/* Réalisations */}
-      <section id="realisations" className="py-32 border-y border-white/5">
+      <section id="realisations" className="py-20 bg-white/50">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block px-4 py-2 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-sm text-[#D4AF37] mb-6">Réalisations</span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Projets qui <span className="text-[#D4AF37]">transforment</span></h2>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-800 mb-6">Réalisations <span className="text-emerald-500">récentes</span></h2>
           </div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {realisations.map((real) => (
-              <div key={real.title} className="group rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-[#D4AF37]/30 transition-all">
-                <div className="relative h-48 overflow-hidden">
-                  <img src={real.img} alt={real.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#030303] to-transparent" />
-                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#D4AF37] text-black font-bold text-sm">{real.value}</div>
+            {realisations.map((r) => (
+              <div key={r.title} className="group rounded-3xl overflow-hidden bg-white border-2 border-slate-100 hover:border-emerald-200 transition-all shadow-lg hover:shadow-xl">
+                <div className={`h-32 ${r.color} flex items-center justify-center`}>
+                  <Home className="w-12 h-12 text-slate-700/30" />
                 </div>
                 <div className="p-6">
-                  <h3 className="font-bold text-lg mb-1">{real.title}</h3>
-                  <p className="text-sm text-white/50 mb-3">{real.desc}</p>
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <Banknote className="w-4 h-4" />
-                    <span className="text-sm font-medium">Économies: {real.economies}</span>
+                  <h3 className="font-bold text-slate-800">{r.title}</h3>
+                  <p className="text-sm text-slate-500 mb-3">{r.desc}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-emerald-600 font-bold">{r.value}</span>
+                    <span className="text-xs text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full">{r.economies}</span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Éco-features */}
-      <section id="avantages" className="py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <span className="inline-block px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300 mb-6">Éco-Responsable</span>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">L'excellence <span className="text-emerald-400">écologique</span></h2>
-              <p className="text-lg text-white/60 mb-8">Des matériaux durables pour un avenir plus vert. Notre ouate de cellulose est fabriquée à partir de papier journal recyclé.</p>
-              
-              <div className="space-y-4">
-                {[
-                  { icon: TreePine, title: '100% Recyclé', desc: 'Ouate de cellulose issue du papier journal' },
-                  { icon: Wind, title: 'CO₂ Réduit', desc: '40% de réduction de votre empreinte carbone' },
-                  { icon: Recycle, title: 'Économie Circulaire', desc: 'Valorisation des déchets en isolant' },
-                  { icon: Shield, title: 'Air Pur', desc: 'Matériaux non-toxiques, sans COV nocifs' },
-                ].map((item) => (
-                  <div key={item.title} className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                    <div className="p-3 rounded-xl bg-emerald-500/20">
-                      <item.icon className="w-6 h-6 text-emerald-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">{item.title}</h4>
-                      <p className="text-sm text-white/50">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="aspect-square rounded-3xl overflow-hidden">
-                <img src="https://images.pexels.com/photos/38749876/pexels-photo-38749876.jpeg?auto=compress&w=1000" alt="Éco isolation" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute -bottom-6 -left-6 p-6 rounded-2xl bg-emerald-500 text-white">
-                <p className="text-3xl font-bold">2,500+</p>
-                <p className="text-sm">Projets éco-responsables</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className="py-32 border-y border-white/5">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">Questions <span className="text-emerald-400">fréquentes</span></h2>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <details key={index} className="group p-6 rounded-2xl bg-white/[0.02] border border-white/5 cursor-pointer">
-                <summary className="flex items-center justify-between font-semibold text-lg group-hover:text-emerald-400 transition-colors">
-                  {faq.q}
-                  <span className="text-emerald-400 text-2xl group-open:rotate-45 transition-transform">+</span>
-                </summary>
-                <p className="mt-4 text-white/60 leading-relaxed">{faq.a}</p>
-              </details>
             ))}
           </div>
         </div>
@@ -418,20 +308,18 @@ export default function IsolationMega() {
 
       {/* CTA */}
       <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[150px]" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-100 via-teal-100 to-cyan-100" />
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Prêt à <span className="text-emerald-400">économiser</span> ?
+          <h2 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
+            Prêt à <span className="text-emerald-500">économiser</span> ?
           </h2>
-          <p className="text-xl text-white/60 mb-10">Évaluation gratuite + vérification de subventions sous 24h</p>
+          <p className="text-xl text-slate-600 mb-10">Évaluation gratuite + vérification de subventions sous 24h</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="/soumission" className="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white font-bold rounded-full hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30 hover:scale-105">
+            <a href="/soumission" className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-bold rounded-full shadow-xl shadow-emerald-400/40 hover:shadow-2xl hover:scale-105 transition-all">
               <Calculator className="w-5 h-5" />
               Évaluation gratuite
             </a>
-            <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition-all">
+            <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-700 font-bold rounded-full shadow-lg hover:shadow-xl transition-all border-2 border-slate-200">
               <Phone className="w-5 h-5" />
               1-800-ZENICORP
             </a>
