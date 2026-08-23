@@ -1,331 +1,314 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import Link from 'next/link';
-import {
-  Shield, Clock, Award, Phone, CheckCircle2, Home, Building2, Banknote,
-  Thermometer, Layers, Paintbrush, Wind, Leaf, Star, Zap, TreePine, Recycle,
-  ArrowRight, Calculator, Users, Sparkles, Crown
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Phone, Check, ArrowRight, Calculator, MapPin, Clock, Shield, X, Package } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
-// Animated counter
-const Counter = ({ end, suffix = '' }: { end: number; suffix?: string }) => {
-  const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setIsVisible(true);
-    }, { threshold: 0.1 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible) return;
-    let start: number;
-    const animate = (now: number) => {
-      if (!start) start = now;
-      const p = Math.min((now - start) / 2000, 1);
-      setCount(Math.floor((1 - Math.pow(1 - p, 4)) * end));
-      if (p < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [isVisible, end]);
-
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
-};
-
-// Sparkle component
-const Sparkle = ({ delay }: { delay: number }) => (
-  <div 
-    className="absolute w-1 h-1 bg-white rounded-full animate-ping"
-    style={{ 
-      animationDelay: `${delay}s`,
-      animationDuration: '3s',
-      opacity: 0.8
-    }}
-  />
-);
-
-// Floating particles
-const Particle = ({ color, delay, x, y }: { color: string; delay: number; x: string; y: string }) => (
-  <div 
-    className="absolute w-2 h-2 rounded-full opacity-60"
-    style={{ 
-      background: color,
-      left: x,
-      top: y,
-      animation: `float ${3 + delay}s ease-in-out infinite`,
-      animationDelay: `${delay}s`,
-      filter: 'blur(1px)'
-    }}
-  />
-);
-
-const services = [
-  { icon: Layers, title: 'Isolation Grenier Éco+', desc: 'Ouate de cellulose soufflée R-60', price: '2,500$', features: ['100% recyclée', 'Standard R-60', 'Aérateurs premium', 'Scellement total'], color: 'from-emerald-300 to-teal-300' },
-  { icon: Home, title: 'Murs Zéro Démolition', desc: 'Injection mousse écologique', price: '3,200$', features: ['Sans poussière', 'Sans démolition', 'Étanchéité air', 'Confort +'], color: 'from-cyan-300 to-blue-300' },
-  { icon: Thermometer, title: 'Audit Énergétique IA', desc: 'Analyse thermique complète', price: '450$', features: ['Caméra thermique HD', 'Blower door', 'Rapport IA', 'ROI calculé'], color: 'from-violet-300 to-purple-300' },
-  { icon: Banknote, title: 'Gestion Subventions', desc: 'Gestion intégrale Rénoclimat', price: 'Gratuit', features: ['Éligibilité', 'Dossier géré', 'Inspecteur', 'Versement 30j'], color: 'from-amber-300 to-orange-300' },
-];
-
-const realisations = [
-  { title: 'Villa Westmount', desc: 'Isolation R-60', value: '8,200 $', economies: '1,200$/an', color: 'bg-emerald-100' },
-  { title: 'Duplex Plateau', desc: 'Murs + grenier', value: '12,800 $', economies: '1,800$/an', color: 'bg-cyan-100' },
-  { title: 'Manoir Québec', desc: 'Restauration', value: '28,500 $', economies: '3,200$/an', color: 'bg-violet-100' },
-  { title: 'Commercial Laval', desc: 'Industriel', value: '45,000 $', economies: '8,500$/an', color: 'bg-amber-100' },
-];
-
-export default function IsolationPale() {
+export default function IsolationPage() {
   const [mounted, setMounted] = useState(false);
-  const [mobileMenu, setMobileMenu] = useState(false);
-
+  const [showQuote, setShowQuote] = useState(false);
+  
   useEffect(() => { setMounted(true); }, []);
+
+  const [sqft, setSqft] = useState('');
+  const [finishType, setFinishType] = useState<'soufflage' | 'polyurethane'>('soufflage');
+  const pricePerSqft = finishType === 'soufflage' ? 1.50 : 3.50;
+  const estimatedTotal = sqft ? parseFloat(sqft) * pricePerSqft : 0;
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState({ src: '', alt: '' });
+  
+  const openLightbox = (src: string, alt: string) => {
+    setLightboxImage({ src, alt });
+    setLightboxOpen(true);
+  };
+  
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    setLightboxImage({ src: '', alt: '' });
+  };
+
+  const downloadQuotePdf = async () => {
+    const surface = Number.parseFloat(sqft || '0');
+    const total = surface * pricePerSqft;
+    const finishLabel = finishType === 'soufflage' ? 'Soufflage cellulose' : 'Mousse polyurethane';
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const centerX = pageWidth / 2;
+    
+    doc.setFillColor(10, 15, 10);
+    doc.rect(0, 0, pageWidth, 50, 'F');
+    
+    doc.setDrawColor(34, 197, 94);
+    doc.setLineWidth(2);
+    doc.line(0, 50, pageWidth, 50);
+    
+    doc.setTextColor(34, 197, 94);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(28);
+    doc.text('ZENICORP', centerX, 25, { align: 'center' });
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.text('ISOLATION PRO', centerX, 38, { align: 'center' });
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(24);
+    doc.text('DEVIS ISOLATION', centerX, 70, { align: 'center' });
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Date: ${dateStr}`, 20, 82);
+    doc.text('Tel: 581-748-7017', pageWidth - 20, 82, { align: 'right' });
+    
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(15, 95, pageWidth - 30, 35, 3, 3, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('CLIENT', 20, 105);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Nom: ${clientName || '_______________________________'}`, 20, 115);
+    doc.text(`Telephone: ${clientPhone || '_______________________________'}`, 20, 123);
+    doc.text(`Courriel: ${clientEmail || '_______________________________'}`, pageWidth - 20, 123, { align: 'right' });
+    
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(15, 140, pageWidth - 30, 45, 3, 3, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('DETAILS DU PROJET', 20, 150);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Type d'isolation: ${finishLabel}`, 20, 162);
+    doc.text(`Surface: ${surface.toFixed(2)} pieds carres`, 20, 170);
+    doc.text(`Taux: $${pricePerSqft.toFixed(2)} / pied carre`, 20, 178);
+    
+    doc.setFillColor(34, 197, 94);
+    doc.roundedRect(15, 200, pageWidth - 30, 30, 5, 5, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('TOTAL ESTIME:', 25, 215);
+    doc.setFontSize(22);
+    doc.text(`$${total.toFixed(2)}`, pageWidth - 25, 218, { align: 'right' });
+    
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(10);
+    doc.text('✓ Garantie R-30 a R-60', 20, 250);
+    doc.text('✓ Aide gouvernementale disponible', 20, 258);
+    doc.text('✓ Installation certifiee', 20, 266);
+    
+    doc.setTextColor(120, 120, 120);
+    doc.setFontSize(9);
+    doc.text('Ce devis est une estimation preliminaire.', centerX, 285, { align: 'center' });
+    
+    doc.setDrawColor(34, 197, 94);
+    doc.setLineWidth(1);
+    doc.line(20, 300, pageWidth - 20, 300);
+    doc.text('zenicorp-isolation.vercel.app  |  581-748-7017', centerX, 310, { align: 'center' });
+
+    doc.save(`devis-zenicorp-isolation-${now.getTime()}.pdf`);
+  };
+
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-800 overflow-x-hidden relative">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(16,185,129,0.3) 2px, transparent 0)`,
-          backgroundSize: '48px 48px'
-        }} />
-        {/* Soft blobs */}
-        <div className="absolute top-20 left-10 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-200/20 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-[#0a0f0a] text-white overflow-hidden">
+      
+      {/* HEADER */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-2 sm:px-4 py-2 sm:py-3 backdrop-blur-xl bg-black/50 border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="ZeniCorp" className="w-7 h-7 sm:w-8 sm:h-8 object-contain flex-shrink-0" />
+            <div className="leading-none">
+              <div className="font-bold text-sm sm:text-base tracking-tight">ZENI<span className="text-green-500">CORP</span></div>
+              <div className="text-[8px] sm:text-[9px] text-white/40 tracking-widest uppercase">Isolation Pro</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
+            <a 
+              href="tel:5817487017"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-xs sm:text-sm font-bold hover:scale-105 transition-transform"
+            >
+              <Phone className="w-4 h-4" />
+              <span className="hidden md:inline">581-748-7017</span>
+            </a>
+          </div>
+        </div>
+      </header>
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-emerald-200/30">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-2xl shadow-emerald-400/40 ring-8 ring-emerald-100">
-                  <Leaf className="w-10 h-10 text-white" />
-                </div>
-                <Sparkle delay={0} />
-                <Sparkle delay={1} />
-              </div>
-              <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">ZENICORP</span>
-                <span className="block text-[10px] text-emerald-600/70 tracking-[0.3em] uppercase font-medium">Isolation Éco+</span>
-              </div>
-            </Link>
+      {/* HERO */}
+      <section className="relative h-screen flex flex-col justify-end pb-20">
+        <div className="absolute inset-0">
+          <div className="w-full h-full bg-gradient-to-br from-green-900/50 to-emerald-900/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-[#0a0f0a]/60 to-transparent" />
+        </div>
 
-            <div className="hidden md:flex items-center gap-8">
-              {['Services', 'Réalisations', 'Avantages'].map((item) => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="text-sm text-slate-600 hover:text-emerald-600 transition-colors font-medium">
-                  {item}
-                </a>
-              ))}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
+              <span className="text-sm font-medium">Experts en isolation residentielle</span>
             </div>
 
-            <div className="flex items-center gap-4">
-              <a href="/soumission" className="px-6 py-3 bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-semibold rounded-full shadow-lg shadow-emerald-400/30 hover:shadow-xl hover:scale-105 transition-all ring-2 ring-emerald-200">
-                Devis gratuit
+            <h1 className="text-6xl sm:text-7xl md:text-9xl font-black leading-[0.85] tracking-tighter mb-6">
+              <span className="block text-white">ZENICORP</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-teal-300">ISOLATION</span>
+            </h1>
+
+            <p className="text-lg sm:text-xl md:text-2xl text-white/70 mb-8 max-w-xl leading-relaxed">
+              Isolation de grenier et sous-sol. Soufflage et polyurethane.
+              <span className="text-green-400 font-semibold"> Garantie R-30 a R-60.</span>
+            </p>
+
+            <div className="flex flex-wrap gap-3 sm:gap-4 mb-12">
+              <button 
+                onClick={() => setShowQuote(true)}
+                className="group flex items-center gap-2 sm:gap-3 px-6 sm:px-10 py-4 sm:py-5 bg-green-500 hover:bg-green-400 text-black font-black text-base sm:text-lg rounded-full transition-all hover:scale-105 shadow-2xl shadow-green-500/50"
+              >
+                DEVIS GRATUIT
+                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <a 
+                href="tel:5817487017"
+                className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-4 sm:py-5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-base sm:text-lg rounded-full transition-all"
+              >
+                <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="hidden sm:inline">581-748-7017</span>
               </a>
             </div>
-          </div>
-        </div>
-      </nav>
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 relative">
-              {/* Decorative sparkles */}
-              <Particle color="#34d399" delay={0} x="80%" y="20%" />
-              <Particle color="#2dd4bf" delay={0.5} x="90%" y="60%" />
-              <Particle color="#a78bfa" delay={1} x="10%" y="80%" />
-
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 border border-emerald-200">
-                <Sparkles className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm text-emerald-700 font-medium">Subventions jusqu'à 5 000$</span>
+            <div className="flex flex-wrap items-center gap-6 sm:gap-8 text-sm">
+              <div className="flex items-center gap-2 text-white/60">
+                <Shield className="w-5 h-5 text-green-400" />
+                <span>Garantie R-30 a R-60</span>
               </div>
-              
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] text-slate-800">
-                Isolation{' '}
-                <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">Éco+</span>
-              </h1>
-              
-              <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
-                Réduisez vos factures de chauffage de <span className="font-bold text-emerald-600">35%</span> avec notre isolation premium. 
-                Ouate 100% recyclée, garantie R-60.
-              </p>
-              
-              <div className="flex flex-wrap gap-4">
-                <a href="/soumission" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-bold rounded-full shadow-xl shadow-emerald-400/40 hover:shadow-2xl hover:scale-105 transition-all overflow-hidden">
-                  <span className="relative z-10">Calculer mes économies</span>
-                  <ArrowRight className="relative z-10 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </a>
-                
-                <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 bg-white border-2 border-emerald-200 text-emerald-700 font-semibold rounded-full hover:bg-emerald-50 transition-all shadow-md">
-                  <Phone className="w-5 h-5" />
-                  1-800-ZENICORP
-                </a>
+              <div className="flex items-center gap-2 text-white/60">
+                <MapPin className="w-5 h-5 text-green-400" />
+                <span>Quebec & Environs</span>
               </div>
-
-              {/* Trust badges */}
-              <div className="flex flex-wrap items-center gap-4 pt-4">
-                {['Garantie 10 ans', 'Éco-responsable', 'Service 24/7'].map((badge) => (
-                  <span key={badge} className="px-4 py-2 bg-white/80 border border-emerald-100 rounded-full text-sm text-emerald-700 font-medium shadow-sm">
-                    ✓ {badge}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-emerald-200/50 ring-4 ring-white">
-                <img src="https://images.pexels.com/photos/6124239/pexels-photo-6124239.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Isolation" className="w-full h-[700px] object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 to-transparent" />
-              </div>
-              
-              {/* Floating cards */}
-              <div className="absolute -bottom-6 -left-6 p-6 rounded-2xl bg-white shadow-xl border border-emerald-100">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-emerald-100">
-                    <TreePine className="w-8 h-8 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-slate-800">100%</p>
-                    <p className="text-sm text-slate-500">Recyclé</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -top-6 -right-6 p-6 rounded-2xl bg-white shadow-xl border border-amber-100">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-amber-100">
-                    <Banknote className="w-8 h-8 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-slate-800">35%</p>
-                    <p className="text-sm text-slate-500">Économies</p>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 text-white/60">
+                <Clock className="w-5 h-5 text-green-400" />
+                <span>Installation rapide</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: 2500, suffix: '+', label: 'Projets', icon: Home, color: 'from-emerald-300 to-teal-300' },
-              { value: 35, suffix: '%', label: 'Économies', icon: Banknote, color: 'from-amber-300 to-orange-300' },
-              { value: 5000, suffix: '$', label: 'Subventions', icon: Award, color: 'from-violet-300 to-purple-300' },
-              { value: 10, suffix: ' ans', label: 'Garantie', icon: Shield, color: 'from-cyan-300 to-blue-300' },
-            ].map((stat) => (
-              <div key={stat.label} className="group p-8 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-200 transition-all shadow-lg hover:shadow-xl">
-                <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${stat.color} mb-4 group-hover:scale-110 transition-transform`}>
-                  <stat.icon className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-4xl font-bold text-slate-800"><Counter end={stat.value} suffix={stat.suffix} /></p>
-                <p className="text-sm text-slate-500 mt-1">{stat.label}</p>
+      {/* CALCULATEUR */}
+      <section className="py-20 px-4 sm:px-6 bg-[#0d120d]">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-black text-center mb-4">Calculateur d'<span className="text-green-400">Isolation</span></h2>
+          <p className="text-white/60 text-center mb-12">Estimez le cout de votre isolation</p>
+          
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 sm:p-12">
+            <div className="mb-8">
+              <p className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-4">Type d'isolation</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button 
+                  onClick={() => setFinishType('soufflage')}
+                  className={`p-6 rounded-2xl border-2 transition-all text-left ${finishType === 'soufflage' ? 'border-green-500 bg-green-500/10' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+                >
+                  <div className="font-bold text-xl mb-2">Soufflage cellulose</div>
+                  <div className="text-3xl font-black text-green-400">$1.50<span className="text-base text-white/60 font-normal">/pied²</span></div>
+                  <p className="text-sm text-white/40 mt-2">Eco-friendly, R-30 a R-40</p>
+                </button>
+
+                <button 
+                  onClick={() => setFinishType('polyurethane')}
+                  className={`p-6 rounded-2xl border-2 transition-all text-left ${finishType === 'polyurethane' ? 'border-green-500 bg-green-500/10' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+                >
+                  <div className="font-bold text-xl mb-2">Mousse polyurethane</div>
+                  <div className="text-3xl font-black text-green-400">$3.50<span className="text-base text-white/60 font-normal">/pied²</span></div>
+                  <p className="text-sm text-white/40 mt-2">Haute performance, R-50 a R-60</p>
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* Services */}
-      <section id="services" className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              Nos Services
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-              Solutions <span className="text-emerald-500">premium</span>
-            </h2>
-          </div>
+            <div className="mb-8">
+              <label className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-4 block">Superficie (pieds carres)</label>
+              <input 
+                type="number"
+                value={sqft}
+                onChange={(e) => setSqft(e.target.value)}
+                placeholder="Ex: 1000"
+                className="w-full px-6 py-5 bg-white/5 border border-white/20 rounded-2xl text-white text-2xl font-bold focus:border-green-500 focus:outline-none"
+              />
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {services.map((service) => (
-              <div key={service.title} className="group p-8 rounded-3xl bg-white border-2 border-slate-100 hover:border-emerald-200 transition-all shadow-lg hover:shadow-2xl hover:-translate-y-1">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className={`p-4 rounded-2xl bg-gradient-to-r ${service.color} shadow-lg`}>
-                    <service.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-slate-800">{service.title}</h3>
-                    <p className="text-slate-500">{service.desc}</p>
-                  </div>
-                  <span className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-bold">{service.price}</span>
+            <div className="p-8 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/60 text-sm">Estimation totale</p>
+                  <p className="text-5xl font-black text-white">${estimatedTotal.toFixed(2)}</p>
                 </div>
-                
-                <ul className="grid grid-cols-2 gap-3">
-                  {service.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Réalisations */}
-      <section id="realisations" className="py-20 bg-white/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-slate-800 mb-6">Réalisations <span className="text-emerald-500">récentes</span></h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {realisations.map((r) => (
-              <div key={r.title} className="group rounded-3xl overflow-hidden bg-white border-2 border-slate-100 hover:border-emerald-200 transition-all shadow-lg hover:shadow-xl">
-                <div className={`h-32 ${r.color} flex items-center justify-center`}>
-                  <Home className="w-12 h-12 text-slate-700/30" />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-bold text-slate-800">{r.title}</h3>
-                  <p className="text-sm text-slate-500 mb-3">{r.desc}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-emerald-600 font-bold">{r.value}</span>
-                    <span className="text-xs text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full">{r.economies}</span>
-                  </div>
+                <div className="text-right">
+                  <p className="text-white/60 text-sm">Prix au pied carre</p>
+                  <p className="text-2xl font-bold text-green-400">${pricePerSqft.toFixed(2)}</p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <button 
+              onClick={() => setShowQuote(true)}
+              className="w-full py-5 bg-green-500 hover:bg-green-400 text-black font-black text-xl rounded-2xl transition-all hover:scale-105 flex items-center justify-center gap-3"
+            >
+              <Calculator className="w-6 h-6" />
+              TELECHARGER DEVIS PDF
+            </button>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-100 via-teal-100 to-cyan-100" />
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
-            Prêt à <span className="text-emerald-500">économiser</span> ?
-          </h2>
-          <p className="text-xl text-slate-600 mb-10">Évaluation gratuite + vérification de subventions sous 24h</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="/soumission" className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-bold rounded-full shadow-xl shadow-emerald-400/40 hover:shadow-2xl hover:scale-105 transition-all">
-              <Calculator className="w-5 h-5" />
-              Évaluation gratuite
-            </a>
-            <a href="tel:18009364267" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-700 font-bold rounded-full shadow-lg hover:shadow-xl transition-all border-2 border-slate-200">
-              <Phone className="w-5 h-5" />
-              1-800-ZENICORP
-            </a>
+      {/* DEVIS MODAL */}
+      {showQuote && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 sm:p-6" onClick={() => setShowQuote(false)}>
+          <div className="w-full max-w-lg bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-white/10" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-black mb-6 text-center">Devis Isolation</h2>
+            <form className="space-y-4">
+              <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Nom complet" className="w-full px-4 py-4 bg-white/5 border border-white/20 rounded-xl text-white text-lg" />
+              <input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="Telephone" className="w-full px-4 py-4 bg-white/5 border border-white/20 rounded-xl text-white text-lg" />
+              <input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-4 bg-white/5 border border-white/20 rounded-xl text-white text-lg" />
+              <button type="button" onClick={() => { downloadQuotePdf(); setShowQuote(false); }} className="w-full py-5 bg-green-500 text-black font-black text-xl rounded-xl">TELECHARGER DEVIS PDF</button>
+            </form>
+            <p className="text-center text-white/40 text-sm mt-4">Ou appelle: <a href="tel:5817487017" className="text-green-400 font-bold">581-748-7017</a></p>
           </div>
         </div>
-      </section>
+      )}
+
+      {/* FOOTER */}
+      <footer className="py-8 px-4 sm:px-6 border-t border-white/10 bg-[#0a0f0a]">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src="/logo.png" alt="ZeniCorp" className="w-8 h-8 object-contain" />
+            <span className="font-bold text-xl">ZENICORP ISOLATION</span>
+          </div>
+          <p className="text-2xl font-black text-green-400 mb-2">581-748-7017</p>
+          <p className="text-white/40">Garantie R-30 a R-60 - Prix: $1.50 - $3.50/pied carre</p>
+        </div>
+      </footer>
+
+      {/* LIGHTBOX */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-4" onClick={closeLightbox}>
+          <button onClick={closeLightbox} className="absolute top-4 right-4 p-3 bg-white/10 rounded-full hover:bg-white/20 z-10"><X className="w-8 h-8" /></button>
+          <img src={lightboxImage.src} alt={lightboxImage.alt} className="max-w-full max-h-[90vh] object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
+
     </div>
   );
 }
