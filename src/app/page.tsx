@@ -74,12 +74,12 @@ export default function IsolationPage() {
   const polyurethaneOptions = [
     { name: 'Murs & cloisons', image: '/images/isolation-wall.jpg', price: 3.50 },
     { name: 'Sous-sol / fondation', image: '/images/isolation-home.jpg', price: 3.50 },
-    { name: 'Sous-sol complet', image: '/images/isolation-attic.jpg', price: 4.50 },
+    { name: 'Sous-sol complet', image: '/images/isolation-attic.webp', price: 4.50 },
     { name: 'Mousse expansive', image: '/images/isolation-fiberglass.jpg', price: 3.50 },
   ];
 
   const soufflageOptions = [
-    { name: 'Grenier / combles', image: '/images/isolation-attic.jpg', price: 1.50 },
+    { name: 'Grenier / combles', image: '/images/isolation-attic.webp', price: 1.50 },
     { name: 'Murs / cloisons', image: '/images/isolation-wall.jpg', price: 1.50 },
     { name: 'Plafond', image: '/images/isolation-fiberglass.jpg', price: 1.50 },
     { name: 'Cellulose souffle', image: '/images/isolation-energy.jpg', price: 1.50 },
@@ -431,8 +431,8 @@ export default function IsolationPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-attic.jpg', 'Grenier / combles')}>
-              <img src="/images/isolation-attic.jpg" alt="Grenier / combles" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-attic.webp', 'Grenier / combles')}>
+              <img src="/images/isolation-attic.webp" alt="Grenier / combles" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
                 <p className="text-2xl sm:text-3xl font-black text-white">Grenier</p>
