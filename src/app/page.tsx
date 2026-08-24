@@ -72,17 +72,17 @@ export default function IsolationPage() {
   };
 
   const polyurethaneOptions = [
-    { name: 'Sous-sol / fondation', image: '/images/isolation-hero.jpg', price: 3.50 },
-    { name: 'Sous-sol complet', image: '/images/isolation-attic.webp', price: 4.50 },
+    { name: 'Sous-sol / fondation', image: '/images/isolation-realisation.jpg', price: 3.50 },
+    { name: 'Sous-sol complet', image: '/images/isolation-laine.jpg', price: 4.50 },
     { name: 'Mousse expansive', image: '/images/isolation-hero.jpg', price: 3.50 },
-    { name: 'Murs & cloisons', image: '/images/isolation-attic.webp', price: 3.50 },
+    { name: 'Murs & cloisons', image: '/images/isolation-plafond.jpg', price: 3.50 },
   ];
 
   const soufflageOptions = [
-    { name: 'Grenier / combles', image: '/images/isolation-attic.webp', price: 1.50 },
+    { name: 'Grenier / combles', image: '/images/isolation-combles.jpg', price: 1.50 },
     { name: 'Murs / cloisons', image: '/images/isolation-hero.jpg', price: 1.50 },
-    { name: 'Plafond', image: '/images/isolation-attic.webp', price: 1.50 },
-    { name: 'Cellulose souffle', image: '/images/isolation-hero.jpg', price: 1.50 },
+    { name: 'Plafond', image: '/images/isolation-plafond.jpg', price: 1.50 },
+    { name: 'Cellulose souffle', image: '/images/isolation-cellulose.jpg', price: 1.50 },
   ];
 
   const submitLeadToDashboard = async () => {
@@ -431,8 +431,8 @@ export default function IsolationPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-attic.webp', 'Grenier / combles')}>
-              <img src="/images/isolation-attic.webp" alt="Grenier / combles" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-combles.jpg', 'Grenier / combles')}>
+              <img src="/images/isolation-combles.jpg" alt="Grenier / combles" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
                 <p className="text-2xl sm:text-3xl font-black text-white">Grenier</p>
@@ -440,12 +440,30 @@ export default function IsolationPage() {
               </div>
             </div>
 
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-hero.jpg', 'Murs / cloisons')}>
-              <img src="/images/isolation-hero.jpg" alt="Murs / cloisons" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-plafond.jpg', 'Plafond')}>
+              <img src="/images/isolation-plafond.jpg" alt="Plafond" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
-                <p className="text-2xl sm:text-3xl font-black text-white">Murs</p>
+                <p className="text-2xl sm:text-3xl font-black text-white">Plafond</p>
                 <p className="text-green-400">Insufflation</p>
+              </div>
+            </div>
+
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-laine.jpg', 'Laine isolante')}>
+              <img src="/images/isolation-laine.jpg" alt="Laine isolante" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+              <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
+                <p className="text-2xl sm:text-3xl font-black text-white">Laine</p>
+                <p className="text-green-400">Isolant thermique</p>
+              </div>
+            </div>
+
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-attic.webp', 'Isolation de grenier')}>
+              <img src="/images/isolation-attic.webp" alt="Isolation de grenier" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+              <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
+                <p className="text-2xl sm:text-3xl font-black text-white">Grenier</p>
+                <p className="text-green-400">Haute performance</p>
               </div>
             </div>
           </div>
@@ -457,20 +475,20 @@ export default function IsolationPage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-black text-center mb-12">Nos <span className="text-green-400">Realisations</span></h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-hero.jpg', 'Application professionnelle')}>
-              <img src="/images/isolation-hero.jpg" alt="Application professionnelle" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-cellulose.jpg', 'Cellulose souffle')}>
+              <img src="/images/isolation-cellulose.jpg" alt="Cellulose souffle" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+              <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
+                <p className="text-2xl sm:text-3xl font-black text-white">Cellulose</p>
+                <p className="text-green-400">Soufflage pro</p>
+              </div>
+            </div>
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-realisation.jpg', 'Application professionnelle')}>
+              <img src="/images/isolation-realisation.jpg" alt="Application professionnelle" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
                 <p className="text-2xl sm:text-3xl font-black text-white">Application</p>
                 <p className="text-green-400">Travail pro</p>
-              </div>
-            </div>
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-attic.webp', 'Isolation de grenier')}>
-              <img src="/images/isolation-attic.webp" alt="Isolation de grenier" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
-                <p className="text-2xl sm:text-3xl font-black text-white">Grenier</p>
-                <p className="text-green-400">Performance</p>
               </div>
             </div>
           </div>
