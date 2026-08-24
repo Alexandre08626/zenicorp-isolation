@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -72,17 +72,17 @@ export default function IsolationPage() {
   };
 
   const polyurethaneOptions = [
-    { name: 'Murs & cloisons', image: '/images/isolation-wall.jpg', price: 3.50 },
-    { name: 'Sous-sol / fondation', image: '/images/isolation-home.jpg', price: 3.50 },
+    { name: 'Sous-sol / fondation', image: '/images/isolation-hero.jpg', price: 3.50 },
     { name: 'Sous-sol complet', image: '/images/isolation-attic.webp', price: 4.50 },
-    { name: 'Mousse expansive', image: '/images/isolation-fiberglass.jpg', price: 3.50 },
+    { name: 'Mousse expansive', image: '/images/isolation-hero.jpg', price: 3.50 },
+    { name: 'Murs & cloisons', image: '/images/isolation-attic.webp', price: 3.50 },
   ];
 
   const soufflageOptions = [
     { name: 'Grenier / combles', image: '/images/isolation-attic.webp', price: 1.50 },
-    { name: 'Murs / cloisons', image: '/images/isolation-wall.jpg', price: 1.50 },
-    { name: 'Plafond', image: '/images/isolation-fiberglass.jpg', price: 1.50 },
-    { name: 'Cellulose souffle', image: '/images/isolation-energy.jpg', price: 1.50 },
+    { name: 'Murs / cloisons', image: '/images/isolation-hero.jpg', price: 1.50 },
+    { name: 'Plafond', image: '/images/isolation-attic.webp', price: 1.50 },
+    { name: 'Cellulose souffle', image: '/images/isolation-hero.jpg', price: 1.50 },
   ];
 
   const submitLeadToDashboard = async () => {
@@ -192,9 +192,9 @@ export default function IsolationPage() {
 
     doc.setTextColor(60, 60, 60);
     doc.setFontSize(10);
-    doc.text('✓ Garantie R-30 a R-60', 20, 250);
-    doc.text('✓ Materiel eco-responsable', 20, 258);
-    doc.text('✓ Installation professionnelle', 20, 266);
+    doc.text('âœ“ Garantie R-30 a R-60', 20, 250);
+    doc.text('âœ“ Materiel eco-responsable', 20, 258);
+    doc.text('âœ“ Installation professionnelle', 20, 266);
 
     doc.setTextColor(120, 120, 120);
     doc.setFontSize(9);
@@ -265,7 +265,7 @@ export default function IsolationPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
-              <span className="text-sm font-medium">Experts en isolation résidentielle</span>
+              <span className="text-sm font-medium">Experts en isolation rÃ©sidentielle</span>
             </div>
 
             <h1 className="text-6xl sm:text-7xl md:text-9xl font-black leading-[0.85] tracking-tighter mb-6">
@@ -354,7 +354,7 @@ export default function IsolationPage() {
                   className={`p-6 rounded-2xl border-2 transition-all text-left ${finishType === 'soufflage' ? 'border-green-500 bg-green-500/10' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
                 >
                   <div className="font-bold text-xl mb-2">Soufflage cellulose</div>
-                  <div className="text-3xl font-black text-green-400">$1.50<span className="text-base text-white/60 font-normal">/pied²</span></div>
+                  <div className="text-3xl font-black text-green-400">$1.50<span className="text-base text-white/60 font-normal">/piedÂ²</span></div>
                   <p className="text-sm text-white/40 mt-2">Eco-friendly, R-30 a R-40</p>
                 </button>
 
@@ -363,7 +363,7 @@ export default function IsolationPage() {
                   className={`p-6 rounded-2xl border-2 transition-all text-left ${finishType === 'polyurethane' ? 'border-green-500 bg-green-500/10' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
                 >
                   <div className="font-bold text-xl mb-2">Mousse polyurethane</div>
-                  <div className="text-3xl font-black text-green-400">$3.50<span className="text-base text-white/60 font-normal">/pied²</span></div>
+                  <div className="text-3xl font-black text-green-400">$3.50<span className="text-base text-white/60 font-normal">/piedÂ²</span></div>
                   <p className="text-sm text-white/40 mt-2">Haute performance, R-50 a R-60</p>
                 </button>
               </div>
@@ -440,30 +440,12 @@ export default function IsolationPage() {
               </div>
             </div>
 
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-wall.jpg', 'Murs / cloisons')}>
-              <img src="/images/isolation-wall.jpg" alt="Murs / cloisons" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-hero.jpg', 'Murs / cloisons')}>
+              <img src="/images/isolation-hero.jpg" alt="Murs / cloisons" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
                 <p className="text-2xl sm:text-3xl font-black text-white">Murs</p>
                 <p className="text-green-400">Insufflation</p>
-              </div>
-            </div>
-
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-home.jpg', 'Sous-sol residentiel')}>
-              <img src="/images/isolation-home.jpg" alt="Sous-sol residentiel" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
-                <p className="text-2xl sm:text-3xl font-black text-white">Sous-sol</p>
-                <p className="text-green-400">Etancheite</p>
-              </div>
-            </div>
-
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-fiberglass.jpg', 'Mousse polyurethane')}>
-              <img src="/images/isolation-fiberglass.jpg" alt="Mousse polyurethane" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
-                <p className="text-2xl sm:text-3xl font-black text-white">Polyurethane</p>
-                <p className="text-green-400">Haute performance</p>
               </div>
             </div>
           </div>
@@ -475,20 +457,20 @@ export default function IsolationPage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-black text-center mb-12">Nos <span className="text-green-400">Realisations</span></h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-construction.jpg', 'Chantier residientiel')}>
-              <img src="/images/isolation-construction.jpg" alt="Chantier residientiel" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-hero.jpg', 'Application professionnelle')}>
+              <img src="/images/isolation-hero.jpg" alt="Application professionnelle" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
-                <p className="text-2xl sm:text-3xl font-black text-white">Chantier</p>
-                <p className="text-green-400">Application pro</p>
+                <p className="text-2xl sm:text-3xl font-black text-white">Application</p>
+                <p className="text-green-400">Travail pro</p>
               </div>
             </div>
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-energy.jpg', "Economie d'energie")}>
-              <img src="/images/isolation-energy.jpg" alt="Economie d'energie" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden group cursor-pointer" onClick={() => openLightbox('/images/isolation-attic.webp', 'Isolation de grenier')}>
+              <img src="/images/isolation-attic.webp" alt="Isolation de grenier" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8">
-                <p className="text-2xl sm:text-3xl font-black text-white">Economies</p>
-                <p className="text-green-400">Energetiques</p>
+                <p className="text-2xl sm:text-3xl font-black text-white">Grenier</p>
+                <p className="text-green-400">Performance</p>
               </div>
             </div>
           </div>
@@ -554,7 +536,7 @@ export default function IsolationPage() {
                     className={`p-6 rounded-2xl border-2 transition-all text-left ${projectType === 'soufflage' ? 'border-green-500 bg-green-500/10' : 'border-white/10 bg-white/5 hover:border-white/30'}`}
                   >
                     <div className="font-bold text-xl mb-2">Soufflage</div>
-                    <div className="text-3xl font-black text-green-400">$1.50<span className="text-base text-white/60 font-normal">/pied²</span></div>
+                    <div className="text-3xl font-black text-green-400">$1.50<span className="text-base text-white/60 font-normal">/piedÂ²</span></div>
                     <p className="text-sm text-white/40 mt-2">Cellulose eco, R-30 a R-40</p>
                   </button>
 
@@ -563,7 +545,7 @@ export default function IsolationPage() {
                     className={`p-6 rounded-2xl border-2 transition-all text-left ${projectType === 'polyurethane' ? 'border-green-500 bg-green-500/10' : 'border-white/10 bg-white/5 hover:border-white/30'}`}
                   >
                     <div className="font-bold text-xl mb-2">Polyurethane</div>
-                    <div className="text-3xl font-black text-green-400">$3.50<span className="text-base text-white/60 font-normal">/pied²</span></div>
+                    <div className="text-3xl font-black text-green-400">$3.50<span className="text-base text-white/60 font-normal">/piedÂ²</span></div>
                     <p className="text-sm text-white/40 mt-2">Mousse rigide, R-50 a R-60</p>
                   </button>
                 </div>
@@ -586,7 +568,7 @@ export default function IsolationPage() {
                         <img src={option.image} alt={option.name} className="w-full h-full object-cover" />
                       </div>
                       <p className="font-bold text-sm">{option.name}</p>
-                      <p className="text-green-400 text-xs">{option.price.toFixed(2)} $/pied²</p>
+                      <p className="text-green-400 text-xs">{option.price.toFixed(2)} $/piedÂ²</p>
                     </button>
                   ))}
                 </div>
@@ -670,7 +652,7 @@ export default function IsolationPage() {
                           const paymentData = {
                             amount: getDepositAmount(),
                             currency: 'CAD',
-                            description: `Acompte Projet Isolation - ${projectOption} (${projectSqft} p²)`,
+                            description: `Acompte Projet Isolation - ${projectOption} (${projectSqft} pÂ²)`,
                             metadata: {
                               project_surface: projectSqft,
                               project_type: projectType,
@@ -730,7 +712,7 @@ export default function IsolationPage() {
                 onClick={() => setShopStep(shopStep - 1)}
                 className="mt-6 w-full py-3 text-white/60 hover:text-white font-medium text-sm"
               >
-                ← Retour a l'etape precedente
+                â† Retour a l'etape precedente
               </button>
             )}
           </div>
