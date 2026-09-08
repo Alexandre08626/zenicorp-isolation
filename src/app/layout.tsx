@@ -1,11 +1,11 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'ZeniCorp Isolation | Soufflage & polyuréthane',
+  title: 'Zeniva Isolation | Soufflage & polyuréthane',
   description: 'Isolation professionnelle résidentielle : soufflage cellulose, mousse polyuréthane, grenier, sous-sol. Québec.',
 };
 
